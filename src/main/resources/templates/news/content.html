@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${news.title}">뉴스 상세</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}">
+  <link rel="stylesheet" th:href="@{/css/content.css}">
+</head>
+<style>
+	a {
+	  text-decoration: none;
+	  color: inherit;
+	}
+</style>
+<!-- 헤더 -->
+<header class="site-header">
+	<div class="container">
+  <div class="logo"><a href="/user/main"><img src="/images/logo.png"></a></div>
+
+  <div class="top-bar">
+    <div class="date" th:text="${#dates.format(#dates.createNow(), 'yyyy.MM.dd')}"></div>
+    <div class="user-menu">
+      <a th:href="${session.role == 'admin'} ? @{/report/list} : @{/report/write}">기사제보</a>
+	  <span th:if="${session.sid == null}">
+	      <a th:href="@{/user/login}">로그인</a>
+	      <a th:href="@{/user/insert}">회원가입</a>
+	  </span>
+	  <span th:if="${session.sid != null and session.role == 'admin'}">
+			  <a th:href="@{/user/logout}">로그아웃</a>
+			  <a th:href="@{/admin/adminPage}">관리자 페이지</a>
+	  </span>
+
+	  <span th:if="${session.sid != null and session.role == 'user'}">
+			  <a th:href="@{/user/myPage}">마이페이지</a>
+	  	      <a th:href="@{/user/logout}">로그아웃</a>
+	  </span>
+
+	  <span th:if="${session.sid != null and session.role == 'reporter'}">
+			  <a th:href="@{/user/myPage}">기자페이지</a>
+		  	  <a th:href="@{/user/logout}">로그아웃</a>
+	  </span>
+	</div>
+  </div>
+
+  <nav class="main-nav">
+    <ul>
+      <li><a href="/news/home">뉴스</a></li>
+      <li><a href="/sports/main">스포츠</a></li>
+      <li><a href="/enter/main">엔터</a></li>
+    </ul>
+    <div class="search">
+      <input type="text" placeholder="검색" />
+    </div>
+  </nav>
+     <nav class="sub-nav">
+        <ul>
+          <li><a href="/news/home">종합</a></li>
+          <li><a href="/news/politics">정치</a></li>
+          <li><a href="/news/economy">경제</a></li>
+          <li><a href="/news/society">사회</a></li>
+        </ul>
+      </nav>
+
+</div>
+</header>
+<body>
+	<div class="article-wrapper">
+		<!-- 제목 -->
+	   <h1 class="article-meta" th:text="${news.title}">기사 제목</h1>
+  
+	   		<!-- 작성일 & 기자 정보 -->
+	       <div class="article-meta">
+	         <p class="date">
+	           작성일 : <span th:text="${#temporals.format(news.reg, 'yyyy-MM-dd HH:mm')}"></span>
+	         </p>
+
+	         <div class="reporter-info">
+				<img th:src="${news.profile_img != null} ? ${news.profile_img} : @{/images/default-profile.png}" 
+				     alt="기자 사진" width="60" height="60" />
+	           <p th:text="${news.writerName}">기자 이름</p>
+	         </div>
+	   </div>
+  
+	   <!-- 기사 본문 -->
+	   <div class="news-content" th:utext="${news.content}"></div>
+  
+	   <!-- 추천 -->
+	   <div class="recommendation">
+	   		<form th:action="@{/news/hot}" method="post">
+	        	<input type="hidden" name="num" th:value="${news.num}">
+	           	<button type="submit">추천</button>
+	           	<span>추천 수 : <span th:text="${news.hot}">0</span></span>
+	        </form>
+	    </div>
+  
+		<!-- 댓글 작성 -->
+		<div class="comment-form">
+			<h3>댓글</h3>
+		    <form th:action="@{/comment/add}" method="post">
+		    	<input type="hidden" name="num" th:value="${news.num}">
+		        <textarea name="content" rows="4" placeholder="댓글을 입력하세요."></textarea><br>
+		        <button type="submit">댓글 등록</button>
+		    </form>
+		 </div>
+  
+		 <!-- 댓글 목록 -->
+		 <p class="comment-count" th:text="${#lists.size(commentList)} + '개의 댓글'">댓글 수</p>
+		 <ul id="commentUl">
+		       <li th:each="comment : ${commentList}">
+		         <div th:style="'margin-left: ' + (${comment.re_level} * 10) + 'px;'">
+		           <strong th:text="${comment.writer}">작성자</strong> :
+		           <span th:text="${comment.content}">댓글 내용</span><br>
+		           <span th:text="${#temporals.format(comment.reg, 'yyyy-MM-dd HH:mm')}">작성 시간</span>
+
+		           <form th:action="@{/comment/delete}" method="post" style="display:inline;">
+		             <input type="hidden" name="com_num" th:value="${comment.com_num}" />
+		             <input type="hidden" name="num" th:value="${news.num}" />
+		             <button type="submit" onclick="return confirm('댓글을 삭제하시겠습니까?');">삭제</button>
+		           </form>
+		         </div>
+		       </li>
+		   </ul>
+</div>
+<footer class="footer">
+  <div class="footer-logo">THE FACT</div>
+  <div class="footer-info">
+    (주)더팩트 | 등록번호: 0000 | 등록·발행일자: 2025.07.22 | 제호: 더팩트 | 발행인: 더펙트 | 편집인: 더펙트 | 전화번호: 02-6020-0055<br>
+    주소: 서울시 관악구 남부순환로 1820 (에그옐로우 14층) | 한국기자협회, 한국사진기자협회, 한국인터넷신문협회 회원사<br>
+    Copyright ⓒ 더팩트(tf.co.kr) THE FACT의 모든 콘텐츠는 지적 재산권법의 보호를 받는 바, 무단 복사, 전재, 배포 등은 법적 제재를 받을 수 있습니다.
+  </div>
+</footer>
+  <!-- 스크립트 영역 -->
+  <script>
+    let page = 1;
+    let isLoading = false;
+    let hasMore = true;
+
+    window.addEventListener('scroll', () => {
+      if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+        if (!isLoading && hasMore) {
+          loadMoreComments();
+        }
+      }
+    });
+
+    function loadMoreComments() {
+      isLoading = true;
+      page++;
+      const newsNum = /*[[${news.num}]]*/ 0;
+
+      fetch(`/comment/load?num=${newsNum}&page=${page}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.length === 0) {
+            hasMore = false;
+            return;
+          }
+          const commentUl = document.getElementById("commentUl");
+          data.forEach(comment => {
+            const li = document.createElement("li");
+            const marginLeft = comment.re_level * 10;
+            const regTime = new Date(comment.reg).toLocaleString();
+            li.innerHTML = `
+              <div style="margin-left: ${marginLeft}px;">
+                <strong>${comment.writer}</strong> :
+                <span>${comment.content}</span><br>
+                <span>${regTime}</span>
+              </div>
+            `;
+            commentUl.appendChild(li);
+          });
+        })
+        .catch(error => {
+          console.error('댓글 불러오기 실패:', error);
+        })
+        .finally(() => {
+          isLoading = false;
+        });
+    }
+  </script>
+</body>
+</html>

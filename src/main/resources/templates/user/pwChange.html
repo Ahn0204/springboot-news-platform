@@ -1,0 +1,85 @@
+<style>
+
+.container1 {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  width: 360px;
+}
+
+.title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+.form-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-box label {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.form-box input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.form-box input:focus {
+  outline: none;
+  border-color: #4A90E2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+button[type="submit"] {
+  margin-top: 10px;
+  padding: 12px;
+  background-color: #4A90E2;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+button[type="submit"]:hover {
+  background-color: #357ABD;
+}
+</style>
+
+<div class="container1">
+  <h2 class="title">비밀번호 변경</h2>
+  <form th:action="@{/user/pwChange}" method="post" class="form-box" name="userInput" onsubmit="return memCheck();">
+    <label>아이디 <p th:text="${dto.id}"></p></label>
+	<input type="hidden" name="id" th:value="${dto.id}" />
+	<label>현재 비밀번호 <input type="password" name="pw" required/></label>
+	<label>새 비밀번호 <input type="password" name="pw1" required/></label>
+	<label>새 비밀번호 확인<input type="password" name="pw2" required/></label>
+    <button type="submit">완료</button>
+  </form>
+</div>
+
+<script>
+	function memCheck() {
+	  let check = document.userInput;
+	  let pw = check.pw.value;
+		  
+		  if (pw1 !== check.pw2.value) {
+		      alert("비밀번호를 동일하게 입력해주세요");
+		      return false;
+		  }
+	    return false; // 폼 제출 막기
+	  }
+	  return true;  // 폼 제출 허용
+ </script>

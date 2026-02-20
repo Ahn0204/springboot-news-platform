@@ -1,0 +1,50 @@
+<link rel="stylesheet" th:href="@{/css/adminPage.css}">
+
+<div class="table-container">
+  <table class="member-table">
+	<thead>
+		<tr>
+		   <th>회원 ID</th>
+		   <th>이름</th>
+		   <th>가입일</th>
+		   <th>회원상태</th>
+		   <th>권한</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr th:each="user : ${list}"> 
+			<td th:text="${user.id}"></td>
+			<td th:text="${user.name}"></td>
+			<td th:text="${#temporals.format(user.reg, 'yy-MM-dd HH:mm')}"></td>
+			<td>
+				<select class="status-select" th:data-id="${user.id}">
+					<option value="active" th:selected="${user.status == 'active'}">활동</option>
+					<option value="stop" th:selected="${user.status == 'stop'}">정지</option>
+				</select>
+			</td>
+			<td th:text="${user.role}"></td>
+		</tr>
+	</tbody>		
+  </table>
+</div>
+<script>
+	$(".status-select").change(function() {
+	  const userId = $(this).data("id");
+	  const newStatus = $(this).val();
+	
+	  $.ajax({
+	    url: "/admin/updateStatus",
+	    type: "POST",
+	    data: {
+	      userId: userId,
+	      status: newStatus
+	    },
+	    success: function(response) {
+	      alert("상태가 변경되었습니다");
+	    },
+	    error: function() {
+	      alert("상태 변경 실패");
+	    }
+	  });
+	});
+</script>

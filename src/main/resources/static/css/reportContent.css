@@ -1,0 +1,87 @@
+.report-title {
+  margin-top: 40px;
+  font-size: 26px;
+  font-weight: bold;
+  color: #222;
+}
+
+.report-detail-table {
+  width: 90%;
+  max-width: 600px;
+  margin: 30px auto;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.report-detail-table th,
+.report-detail-table td {
+  padding: 14px 18px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+  font-size: 15px;
+}
+
+.report-detail-table th {
+  background-color: #f7f7f7;
+  width: 150px;
+  font-weight: bold;
+  color: #333;
+}
+
+.report-detail-table tr:last-child td,
+.report-detail-table tr:last-child th {
+  border-bottom: none;
+}
+
+.report-detail-table img {
+  max-width: 100%;
+  height: auto;
+  margin-top: 8px;
+  border-radius: 6px;
+}
+.no-file {
+  color: #555;
+  text-decoration: none;
+  cursor: default;
+  font-weight: normal;
+}
+
+/* 공통 버튼 스타일 */
+.btn {
+  padding: 10px 18px;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 5px;
+  transition: background-color 0.3s ease;
+  display: inline-block;          /* ✅ 버튼 크기 고정 */
+  min-width: 100px;               /* ✅ 동일 너비 확보 */
+  text-align: center;
+  box-sizing: border-box;         /* ✅ 패딩 포함해 크기 정리 */
+}
+
+
+/* 파란색 버튼 (기사작성용) */
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+/* 회색 버튼 (제보 목록용) */
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #565e64;
+}

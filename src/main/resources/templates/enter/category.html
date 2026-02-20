@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title th:text="${category} + ' 뉴스 목록'">카테고리 뉴스</title>
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<link rel="stylesheet" th:href="@{/css/main.css}">
+	<style>
+		.container_body {
+			display: flex;
+			gap: 30px;
+			max-width: 1200px;
+			margin: 40px auto;
+			padding: 0 20px;
+		}
+
+		.news-grid {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 20px;
+			flex: 1;
+		}
+
+		.news-item {
+			border: 1px solid #ccc;
+			border-radius: 6px;
+			overflow: hidden;
+			background: #fff;
+		}
+
+		.news-item img {
+			width: 100%;
+			height: 150px;
+			object-fit: cover;
+		}
+
+		.news-item .info {
+			padding: 10px;
+		}
+
+		.news-item .info h3 {
+			margin: 0;
+			font-size: 15px;
+			line-height: 1.3;
+		}
+
+		.sidebar {
+			width: 250px;
+			background: #f9f9f9;
+			border: 1px solid #ddd;
+			border-radius: 8px;
+			padding: 15px;
+			font-family: 'Noto Sans KR', sans-serif;
+			font-size: 14px;
+			box-shadow: 0 0 8px rgba(0,0,0,0.03);
+		}
+
+		.sidebar h3 {
+			font-size: 16px;
+			margin-bottom: 10px;
+			border-bottom: 1px solid #ccc;
+			padding-bottom: 6px;
+		}
+
+		.sidebar a {
+			display: block;
+			margin-bottom: 8px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			color: #333;
+			text-decoration: none;
+		}
+
+		#loading {
+			text-align: center;
+			margin: 20px;
+			color: #999;
+		}
+
+		.footer {
+		  padding: 30px 20px;
+		  background-color: #fff;
+		  color: #777;
+		  font-size: 13px;
+		  line-height: 1.6;
+		  border-top: 1px solid #ddd;
+		  text-align: center;
+		  font-family: 'Noto Sans KR', sans-serif;
+		}
+
+		.footer-logo {
+		  font-weight: bold;
+		  font-size: 22px;
+		  margin-bottom: 10px;
+		  color: #999;
+		}
+
+		.footer-info {
+		  max-width: 900px;
+		  margin: 0 auto;
+		  color: #888;
+		}
+	</style>
+</head>
+<body>
+	<header class="site-header">
+	  <div class="container">
+	    <div class="logo"><a href="/user/main"><img src="/images/logo.png"></a></div>
+
+	    <div class="top-bar">
+	      <div class="date" th:text="${#dates.format(#dates.createNow(), 'yyyy.MM.dd')}"></div>
+	      <div class="user-menu">
+	        <a th:href="${session.role == 'admin'} ? @{/report/list} : @{/report/write}">기사제보</a>
+	        <span th:if="${session.sid == null}">
+	          <a th:href="@{/user/login}">로그인</a>
+	          <a th:href="@{/user/insert}">회원가입</a>
+	        </span>
+	        <span th:if="${session.sid != null and session.role == 'admin'}">
+	          <a th:href="@{/user/logout}">로그아웃</a>
+	          <a th:href="@{/admin/adminPage}">관리자 페이지</a>
+	        </span>
+	        <span th:if="${session.sid != null and session.role == 'user'}">
+	          <a th:href="@{/user/myPage}">마이페이지</a>
+	          <a th:href="@{/user/logout}">로그아웃</a>
+	        </span>
+	        <span th:if="${session.sid != null and session.role == 'reporter'}">
+	          <a th:href="@{/user/myPage}">기자페이지</a>
+	          <a th:href="@{/user/logout}">로그아웃</a>
+	        </span>
+	      </div>
+	    </div>
+
+	    <nav class="main-nav">
+	      <ul>
+	        <li><a th:href="@{/news/home}">뉴스</a></li>
+	        <li><a th:href="@{/sports/main}">스포츠</a></li>
+	        <li><a th:href="@{/enter/main}">엔터</a></li>
+	      </ul>
+	      <div class="search">
+	        <input type="text" placeholder="검색" />
+	      </div>
+	    </nav>
+
+	    <nav class="sub-nav">
+	      <ul>
+	        <li><a th:href="@{/enter/main}">홈</a></li>
+	        <li><a th:href="@{/enter/category?category=drama}" th:classappend="${category} == 'drama' ? 'active' : ''">드라마</a></li>
+	        <li><a th:href="@{/enter/category?category=movie}" th:classappend="${category} == 'movie' ? 'active' : ''">영화</a></li>
+
+	      </ul>
+	    </nav>
+	  </div>
+	</header>
+	
+	<div class="container">
+		<div class="container_body">
+			<div class="news-grid" id="newsContainer">
+				<h2 style="grid-column: 1 / -1;" th:switch="${category}">
+				  <span th:case="'drama'">드라마 뉴스 목록</span>
+				  <span th:case="'movie'">영화 뉴스 목록</span>
+
+				</h2>
+				<div th:each="news : ${categoryNews}" class="news-item">
+					<a th:href="@{/enter/detail(num=${news.num})}">
+						<img th:src="${news.thumbnail}" alt="썸네일">
+						<div class="info">
+							<h3 th:text="${news.title}">뉴스 제목</h3>
+						</div>
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<footer class="footer">
+	  <div class="footer-logo">THE FACT</div>
+	  <div class="footer-info">
+	    (주)더팩트 | 등록번호: 0000 | 등록·발행일자: 2025.07.22 | 제호: 더팩트 | 발행인: 더펙트 | 편집인: 더펙트 | 전화번호: 02-6020-0055<br>
+	    주소: 서울시 관악구 남부순환로 1820 (에그옐로우 14층) | 한국기자협회, 한국사진기자협회, 한국인터넷신문협회 회원사<br>
+	    Copyright ⓒ 더팩트(tf.co.kr) THE FACT의 모든 콘텐츠는 지적 재산권법의 보호를 받는 바, 무단 복사, 전재, 배포 등은 법적 제재를 받을 수 있습니다.
+	  </div>
+	</footer>
+
+	<script th:inline="javascript">
+	/*<![CDATA[*/
+		let offset = 10;
+		const limit = 10;
+		const category = /*[[${category}]]*/ 'general';
+		let isLoading = false;
+
+		function loadMoreNews() {
+			if (isLoading) return;
+			isLoading = true;
+			$("#loading").show();
+
+			$.ajax({
+				url: "/enter/category/loadMore",
+				method: "GET",
+				data: {
+					category: category,
+					offset: offset,
+					limit: limit
+				},
+				success: function (data) {
+					if (data.length === 0) {
+						$("#loading").text("더 이상 뉴스가 없습니다");
+						return;
+					}
+					data.forEach(function(news) {
+						const html = `
+							<div class="news-item">
+								<a href="/enter/detail?num=${news.num}">
+									<img src="${news.thumbnail}" alt="썸네일">
+									<div class="info">
+										<h3>${news.title}</h3>
+									</div>
+								</a>
+							</div>
+						`;
+						$("#newsContainer").append(html);
+					});
+					offset += limit;
+					isLoading = false;
+					$("#loading").hide();
+				},
+				error: function () {
+					isLoading = false;
+				}
+			});
+		}
+
+		$(window).on("scroll", function () {
+			if ($(window).scrollTop() + $(window).height() >= $(document).height() - 200) {
+				loadMoreNews();
+			}
+		});
+	/*]]>*/
+	</script>
+</body>
+</html>

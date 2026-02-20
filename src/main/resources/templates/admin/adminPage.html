@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>관리자 페이지</title>
+  <link rel="stylesheet" th:href="@{/css/adminPage.css}">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+		<div class="logo"><a href="/user/main"><img src="/images/logo.png"></a></div>
+    <div class="top-bar">
+      <div class="date" th:text="${#dates.format(#dates.createNow(), 'yyyy.MM.dd')}"></div>
+      <div class="user-menu">
+        <span th:if="${session.sid != null and session.role == 'admin'}">
+          <span>admin님, 반갑습니다.</span>
+          <a th:href="@{/user/logout}">로그아웃</a>
+        </span>
+      </div>
+    </div>
+
+  </div>
+</header>
+
+<div class="body_container">
+  <div class="sidebar">
+    <ul>
+      <li class="menu-item" data-url="/admin/userUpdate">회원 관리</li>
+      <li class="menu-item" data-url="/admin/reporterUpdate">기자 관리</li>
+      <li class="menu-item" data-url="/admin/reportManagement">제보 관리</li>
+      <li class="menu-item" data-url="/admin/reporterRegister">기자 등록</li>
+
+      <!-- 기사 관리: 하위 메뉴 토글 -->
+      <li class="menu-item toggle-submenu">기사 관리</li>
+      <ul class="submenu" style="display: none; padding-left: 20px;">
+        <li class="menu-item" data-url="/admin/approveNews">뉴스 기사 관리</li>
+        <li class="menu-item" data-url="/admin/approveEnt">연예 기사 관리</li>
+        <li class="menu-item" data-url="/admin/approveSports">스포츠 기사 관리</li>
+      </ul>
+    </ul>
+  </div>
+
+  <div class="content" id="content-area">
+    <!-- 여기에 AJAX로 내용이 들어옴 -->
+    <h3>원하는 메뉴를 선택해주세요</h3>
+  </div>
+</div>
+<footer class="footer">
+  <div class="footer-logo">THE FACT</div>
+  <div class="footer-info">
+    (주)더팩트 | 등록번호: 0000 | 등록·발행일자: 2025.07.22 | 제호: 더팩트 | 발행인: 더펙트 | 편집인: 더펙트 | 전화번호: 02-6020-0055<br>
+    주소: 서울시 관악구 남부순환로 1820 (에그옐로우 14층) | 한국기자협회, 한국사진기자협회, 한국인터넷신문협회 회원사<br>
+    Copyright ⓒ 더팩트(tf.co.kr) THE FACT의 모든 콘텐츠는 지적 재산권법의 보호를 받는 바, 무단 복사, 전재, 배포 등은 법적 제재를 받을 수 있습니다.
+  </div>
+</footer>
+<script>
+  $(document).ready(function () {
+    // 서브메뉴 토글
+    $('.toggle-submenu').click(function () {
+      $(this).next('.submenu').slideToggle('fast');
+    });
+
+    // AJAX 로딩 처리
+    $('.menu-item').click(function () {
+      const url = $(this).data('url');
+      if (!url) return;
+
+      $('#content-area').html('<p>로딩 중...</p>');
+
+      $.ajax({
+        url: url,
+        type: 'GET',
+        dataType: 'html',
+        success: function (data) {
+          $('#content-area').html(data);
+        },
+        error: function () {
+          $('#content-area').html('<p>불러오기 실패</p>');
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

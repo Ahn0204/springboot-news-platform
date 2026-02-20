@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ex.repository.SportsMapper">
+	<!--스포츠기사 글쓰기-->
+	<insert id="boardWrite">
+		insert into sports(num,title,writer,cateId,thumbnail,status,content) values(sports_seq.nextval,#{title},#{writer},#{cateId},#{thumbnail, jdbcType=VARCHAR},'wait',#{content})
+	</insert>
+	<!--스포츠 카테고리 조회-->
+	<select id="cate" resultType="com.ex.data.SportsCateDTO">
+		select * from sportsCate
+	</select>
+	<!--스포츠 카테고리 이름 조회-->
+	<select id="catename" resultType="String">
+		select name from sportsCate where cateId=#{cateId}
+	</select>
+	<!--스포츠기사 전체 목록-->
+	<select id="sportsList" resultType="com.ex.data.SportsDTO">
+		select * from sports where status='approve'
+	</select>
+	<!--카테고리별 목록-->
+	<select id="sportsCateList" resultType="com.ex.data.SportsDTO">
+		select s.*,u.name from sports s join users u on s.writer=u.id where s.cateId=#{cateId} and s.status='approve'order by num desc offset #{offset} rows fetch next #{pageSize} rows only
+	</select>
+	<!--내용만 출력(이미지 제외)-->
+	<select id="content" resultType="String">
+		select content from sports
+	</select>
+	<!--스포츠기사 내용 출력-->
+	<select id="sportsContent" resultType="com.ex.data.SportsDTO">
+		select * from sports where num=#{num}
+	</select>
+	<!--스포츠기사 조회수 +1-->
+	<update id="sportsReadCountUp">
+		update sports set readCount = readCount+1 where num=#{num}
+	</update>
+	<!--스포츠기사 좋아요-->
+	<insert id="reactionInsert">
+		insert into sportsReaction values(sportsReaction_seq.nextval,#{sports_id},#{user_id},#{emotion_type},sysdate)
+	</insert>
+	<!--스포츠기사 좋아요 아이디체크-->
+	<select id="idCheck" resultType="String">
+		select emotion_type from sportsReaction where sports_id=#{sports_id} and user_id=#{user_id}
+	</select>
+	<!--좋아요 취소-->
+	<delete id="removeReaction">
+		delete from sportsReaction where sports_id=#{sports_id} and user_id=#{user_id} and emotion_type=#{emotion_type}
+	</delete>
+	<!-- 기존 반응 삭제 -->
+	<delete id="deleteReaction">
+	    DELETE FROM sportsReaction 
+	    WHERE sports_id = #{sports_id} AND user_id = #{user_id}
+	</delete>
+	<!--좋아요 개수-->
+	<select id="reactionCount1" resultType="com.ex.data.ReactionCountDTO">
+		  SELECT emotion_type AS emotionType, COUNT(*) AS count
+		  FROM sportsReaction
+		  WHERE sports_id = #{sports_id}
+		  GROUP BY emotion_type
+	</select>
+	<!--게시글 좋아요 총 개수-->
+	<select id="reactionAllCount" resultType="int">
+		select count(*) from sportsReaction where sports_id=#{sports_id}
+	</select>
+	<!--스포츠기사 조회순-->
+	<select id="sportsReadCount" resultType="com.ex.data.SportsDTO">
+		<![CDATA[
+			select * from (select * from sports where status='approve' order by readCount desc) where rownum <= 10
+		]]>
+	</select>
+	<!--리액션 많은순-->
+	<select id="sportsReaction" resultType="com.ex.data.SportsDTO">
+		SELECT s.num,s.title,s.thumbnail,u.name AS name,COUNT(r.reaction_id) AS count FROM sports s 
+		LEFT JOIN users u ON s.writer = u.id LEFT JOIN sportsReaction r ON s.num = r.sports_id
+		where s.status='approve'
+			GROUP BY s.num, s.title, s.thumbnail, u.name
+				ORDER BY count DESC
+	</select>
+	<select id="sportsReporter" resultType="com.ex.data.SportsDTO">
+		select s.title,s.num from sports s join reporter r on s.writer = r.id where r.id=#{id} order by s.num desc fetch first 2 rows only
+	</select>
+</mapper>

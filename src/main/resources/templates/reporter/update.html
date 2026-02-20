@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>기자 등록/수정</title>
+    <link rel="stylesheet" th:href="@{/css/reporter.css}" />
+</head>
+<body>
+    <h1>기자 정보 입력</h1>
+
+    <form action="/reporter/update" method="post" enctype="multipart/form-data">
+        <!-- 아이디 -->
+        <label for="id">아이디:</label>
+        <input type="text" id="id" name="id" th:value="${reporter.id}" readonly /><br><br>
+
+        <!-- 기자 이름 -->
+        <label for="writer_name">기자 이름:</label>
+        <input type="text" id="writer_name" name="writer_name" th:value="${reporter.writer_name}" required /><br><br>
+
+        <!-- 프로필 이미지 -->
+        <label for="profile_img">프로필 이미지:</label>
+        <input type="file" id="profile_img" name="profile_img"/><br><br>
+
+        <!-- 자기소개 -->
+        <label for="intro">자기소개:</label>
+        <textarea id="intro" name="intro" required th:text="${reporter.intro}"></textarea><br><br>
+
+
+
+        <br><br>
+        <input type="submit" value="저장" />
+    </form>
+
+	
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>뉴스 홈</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}">
+  <link rel="stylesheet" th:href="@{/css/newsHome.css}">
+</head>
+<body>
+<style>
+	a {
+	  text-decoration: none;
+	  color: inherit;
+	}
+</style>
+	
+  <!-- 헤더 -->
+  <header class="site-header">
+    <div class="container">
+      <div class="logo"><a href="/user/main"><img src="/images/logo.png"></a></div>
+      <div class="top-bar">
+        <div class="date" th:text="${#dates.format(#dates.createNow(), 'yyyy.MM.dd')}"></div>
+        <div class="user-menu">
+          <a th:href="${session.role == 'admin'} ? @{/report/list} : @{/report/write}">기사제보</a>
+          <span th:if="${session.sid == null}">
+            <a th:href="@{/user/login}">로그인</a>
+            <a th:href="@{/user/insert}">회원가입</a>
+          </span>
+          <span th:if="${session.sid != null and session.role == 'admin'}">
+            <a th:href="@{/user/logout}">로그아웃</a>
+            <a th:href="@{/admin/adminPage}">관리자 페이지</a>
+          </span>
+          <span th:if="${session.sid != null and session.role == 'user'}">
+            <a th:href="@{/user/myPage}">마이페이지</a>
+            <a th:href="@{/user/logout}">로그아웃</a>
+          </span>
+          <span th:if="${session.sid != null and session.role == 'reporter'}">
+            <a th:href="@{/user/myPage}">기자페이지</a>
+            <a th:href="@{/user/logout}">로그아웃</a>
+          </span>
+        </div>
+      </div>
+
+      <nav class="main-nav">
+        <ul>
+          <li><a href="/news/home">뉴스</a></li>
+          <li><a href="/sports/main">스포츠</a></li>
+          <li><a href="/enter/main">엔터</a></li>
+        </ul>
+        <div class="search">
+          <input type="text" placeholder="검색" />
+        </div>
+      </nav>
+
+      <nav class="sub-nav">
+        <ul>
+          <li><a href="/news/home">종합</a></li>
+          <li><a href="/news/politics">정치</a></li>
+          <li><a href="/news/economy">경제</a></li>
+          <li><a href="/news/society">사회</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 카테고리 섹션 -->
+  <div class="category-container">
+    <section>
+      <h2 class="category-title">정치</h2>
+      <div class="news-grid" th:each="news : ${politicsTop5}">
+        <div class="news-card">
+          <a th:href="@{/news/content/{num}(num=${news.num})}">
+            <img th:src="${news.thumbUrl}" alt="썸네일">
+            <span class="news-card-title" th:text="${news.title}">정치 뉴스 제목</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="category-title">경제</h2>
+      <div class="news-grid" th:each="news : ${economyTop5}">
+        <div class="news-card">
+          <a th:href="@{/news/content/{num}(num=${news.num})}">
+            <img th:src="${news.thumbUrl}" alt="썸네일">
+            <span class="news-card-title" th:text="${news.title}">경제 뉴스 제목</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="category-title">사회</h2>
+      <div class="news-grid" th:each="news : ${societyTop5}">
+        <div class="news-card">
+          <a th:href="@{/news/content/{num}(num=${news.num})}">
+            <img th:src="${news.thumbUrl}" alt="썸네일">
+            <span class="news-card-title" th:text="${news.title}">사회 뉴스 제목</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 속보 -->
+  <h2 class="category-title">속보</h2>
+  <div class="breaking-news">
+    <div class="news-card" th:each="news : ${breakingNews}">
+      <a th:href="@{/news/content/{num}(num=${news.num})}">
+        <img th:src="${news.thumbUrl}" alt="썸네일">
+        <span class="news-card-title" th:text="${news.title}">속보 제목</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- 최신 뉴스 -->
+  <h2 class="category-title">최신 뉴스</h2>
+  <div id="latest-news-list">
+    <!-- AJAX 로드 -->
+  </div>
+  <button id="loadMoreBtn">더보기</button>
+  <footer class="footer">
+    <div class="footer-logo">THE FACT</div>
+    <div class="footer-info">
+      (주)더팩트 | 등록번호: 0000 | 등록·발행일자: 2025.07.22 | 제호: 더팩트 | 발행인: 더펙트 | 편집인: 더펙트 | 전화번호: 02-6020-0055<br>
+      주소: 서울시 관악구 남부순환로 1820 (에그옐로우 14층) | 한국기자협회, 한국사진기자협회, 한국인터넷신문협회 회원사<br>
+      Copyright ⓒ 더팩트(tf.co.kr) THE FACT의 모든 콘텐츠는 지적 재산권법의 보호를 받는 바, 무단 복사, 전재, 배포 등은 법적 제재를 받을 수 있습니다.
+    </div>
+  </footer>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script>
+    let page = 1;
+    function loadLatestNews() {
+      $.ajax({
+        url: '/news/latestPage',
+        method: 'get',
+        data: { page: page },
+        success: function(data) {
+          if (data.length === 0) {
+            $('#loadMoreBtn').hide();
+            return;
+          }
+          data.forEach(function(news) {
+            $('#latest-news-list').append(`
+              <div class="news-card">
+                <a href="/news/content/${news.num}">
+                  <img src="${news.thumbUrl}" alt="썸네일">
+                  <p class="news-card-title">${news.title}</p>
+                </a>
+              </div>
+            `);
+          });
+          page++;
+        }
+      });
+    }
+
+    $('#loadMoreBtn').on('click', loadLatestNews);
+    $(document).ready(function() {
+      loadLatestNews();
+    });
+  </script>
+</body>
+</html>

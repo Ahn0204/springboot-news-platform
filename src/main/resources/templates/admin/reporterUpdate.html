@@ -1,0 +1,52 @@
+<link rel="stylesheet" th:href="@{/css/adminPage.css}">
+
+<div class="table-container">
+  <table class="member-table">
+	<thead>
+		<tr>
+		   <th>기자 ID</th>
+		   <th>이름</th>
+		   <th>입사일</th>
+		   <th>카테고리</th>
+		   <th>권한</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr th:each="user : ${list}"> 
+			<td th:text="${user.id}"></td>
+			<td th:text="${user.name}"></td>
+			<td th:text="${#temporals.format(user.reg, 'yy-MM-dd HH:mm')}"></td>
+			<td>
+				<select class="category-select" th:data-id="${user.id}">
+					<option value="일반" th:selected="${user.category == '일반'}">일반</option>
+					<option value="연예" th:selected="${user.category == '연예'}">연예</option>
+					<option value="스포츠" th:selected="${user.category == '스포츠'}">스포츠</option>
+				</select>
+			</td>
+			<td th:text="${user.role}"></td>
+		</tr>
+	</tbody>		
+  </table>
+</div>
+<script>
+	$(".category-select").change(function() {
+		
+	  const reporterId = $(this).data("id");
+	  const newCategory = $(this).val();
+	
+	  $.ajax({
+	    url: "/admin/updateCategory",
+	    type: "POST",
+	    data: {
+	      id: reporterId,
+	      category: newCategory
+	    },
+	    success: function(response) {
+	      alert("카테고리가 변경되었습니다");
+	    },
+	    error: function() {
+	      alert("카테고리 변경 실패");
+	    }
+	  });
+	});
+</script>
